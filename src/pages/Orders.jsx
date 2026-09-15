@@ -1138,7 +1138,10 @@ export default function Orders() {
                     <td>
                       {order.fulfillment_type === 'collection' ? (
                         <span className="fulfillment-badge fulfillment-collection">
-                          <Package size={14} /> Collection
+                          <Package size={14} />
+                          {String(order.collection_location || '').toLowerCase().includes('courier')
+                            ? 'Courier Collection'
+                            : 'Collection'}
                         </span>
                       ) : (
                         <span className="fulfillment-badge fulfillment-delivery">

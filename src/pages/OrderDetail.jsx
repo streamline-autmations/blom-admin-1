@@ -1088,6 +1088,9 @@ export default function OrderDetail() {
   // Logic for Workflow Buttons
   const type = order.fulfillment_type || 'delivery'; // Default to delivery
   const status = order.status || 'unpaid';
+  // Same 'collection' fulfillment flow as an in-store pickup — the customer just
+  // sends their own courier to collect instead of walking in themselves.
+  const isCourierCollection = type === 'collection' && String(order.collection_location || '').toLowerCase().includes('courier');
 
   let nextAction = null;
   let nextStatus = null;
@@ -1422,12 +1425,12 @@ export default function OrderDetail() {
           <div className="section-card">
             <h3 className="sidebar-section-title">
               <Truck size={18} />
-              {type === 'collection' ? 'Collection Details' : 'Delivery Details'}
+              {type === 'collection' ? (isCourierCollection ? 'Courier Collection Details' : 'Collection Details') : 'Delivery Details'}
             </h3>
             <div className="delivery-info">
               <div className="bg-[var(--bg)] p-3 rounded-lg mb-2">
                 <span className="text-xs font-bold uppercase text-[var(--text-muted)] block mb-1">Method</span>
-                <span className="font-bold capitalize">{type}</span>
+                <span className="font-bold capitalize">{isCourierCollection ? 'Courier Collection' : type}</span>
               </div>
 
               {type === 'delivery' ? (
@@ -1435,8 +1438,8 @@ export default function OrderDetail() {
                    <div className="text-[var(--text-muted)] text-xs uppercase font-bold">Shipping Address</div>
                    <div className="whitespace-pre-wrap mt-1 leading-relaxed">
                      {formatAddress(
-                       order.shipping_address || 
-                       order.delivery_address || 
+                       order.shipping_address ||
+                       order.delivery_address ||
                        order.ship_to_address ||
                        'No delivery address provided - Please contact customer for address details'
                      )}
@@ -1444,11 +1447,19 @@ export default function OrderDetail() {
                  </div>
               ) : (
                  <div>
-                   <div className="text-[var(--text-muted)] text-xs uppercase font-bold">Collection Point</div>
-                   <div className="mt-1">
-                     BLOM Cosmetics Studio<br/>
-                     (See Settings for Address)
+                   <div className="text-[var(--text-muted)] text-xs uppercase font-bold">
+                     {isCourierCollection ? 'Courier Collection Point' : 'Collection Point'}
                    </div>
+                   <div className="mt-1">
+                     {order.collection_location || (
+                       <>BLOM Cosmetics Studio<br/>(See Settings for Address)</>
+                     )}
+                   </div>
+                   {isCourierCollection && (
+                     <div className="text-[var(--text-muted)] text-xs mt-2">
+                       Customer is arranging their own courier — pack and have it ready for collection.
+                     </div>
+                   )}
                  </div>
               )}
             </div>

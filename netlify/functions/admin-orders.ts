@@ -117,7 +117,7 @@ export const handler: Handler = async (e) => {
     const from = (page - 1) * size;
     const to = from + size - 1;
 
-    const baseSelect = "id,order_number,m_payment_id,merchant_payment_id,buyer_name,buyer_email,contact_phone,status,payment_status,total_cents,created_at,placed_at,paid_at,fulfillment_type,fulfillment_method,shipping_method,customer_name,customer_email,customer_phone,shipping_address,delivery_method,collection_slot,subtotal_cents,shipping_cents,discount_cents,archived,invoice_url";
+    const baseSelect = "id,order_number,m_payment_id,merchant_payment_id,buyer_name,buyer_email,contact_phone,status,payment_status,total_cents,created_at,placed_at,paid_at,fulfillment_type,fulfillment_method,shipping_method,customer_name,customer_email,customer_phone,shipping_address,delivery_method,collection_slot,collection_location,subtotal_cents,shipping_cents,discount_cents,archived,invoice_url";
     const selectCols = hasOrderKind ? `${baseSelect},order_kind` : baseSelect;
 
     let query = s.from("orders")
