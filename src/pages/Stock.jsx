@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { History, Search, DollarSign, Package, Save, X } from 'lucide-react';
+import { History, Search, Save, X } from 'lucide-react';
 import { useToast } from '../components/ui/ToastProvider';
 import { api } from '../components/data/api';
 
@@ -71,20 +71,6 @@ export default function Stock() {
   })) || [];
 
   // Helper function to get variant stock level
-  const getVariantStock = (product, variantIndex) => {
-    if (!product.variants || product.variants.length === 0) return product.stock || 0;
-    
-    const variant = product.variants[variantIndex];
-    if (!variant) return product.stock || 0;
-    
-    // Check if variant has explicit stock level
-    if (variant.stock !== undefined && variant.stock !== null) {
-      return variant.stock;
-    }
-    
-    // Fall back to product stock if variant doesn't have explicit stock
-    return product.stock || 0;
-  };
 
   // Filter logic: Hide furniture/courses/unlimited items, only show active variants, apply search
   const filteredVariants = useMemo(() => {
@@ -568,10 +554,6 @@ function StockHistory() {
   };
 
   // Helper to determine movement type for display
-  const getMovementType = (move) => {
-    const reason = move.reason || '';
-    return formatMovementType(reason);
-  };
 
   // Helper to format reason for display
   const formatReason = (reason) => {

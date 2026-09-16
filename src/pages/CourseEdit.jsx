@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Upload } from "lucide-react";
 import { useToast } from "../components/ui/ToastProvider";
 import { api } from "../components/data/api";
-import { supabase } from "@/lib/supabase";
 import { uploadToCloudinary } from "../lib/cloudinary";
 
 const slugify = (value) =>

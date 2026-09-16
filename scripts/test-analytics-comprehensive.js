@@ -210,7 +210,7 @@ class AnalyticsTester {
     await this.runTest('API Response Time', async () => {
       const startTime = Date.now();
       
-      const response = await fetch(`${TEST_CONFIG.baseUrl}${TEST_CONFIG.endpoints.advancedAnalytics}?period=30`);
+      await fetch(`${TEST_CONFIG.baseUrl}${TEST_CONFIG.endpoints.advancedAnalytics}?period=30`);
       const duration = Date.now() - startTime;
       
       if (duration > TEST_CONFIG.performance.maxResponseTime) {

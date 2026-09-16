@@ -1,7 +1,5 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { api } from "../components/data/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Star, Check, X, Image as ImageIcon } from "lucide-react";
 import { useToast } from "../components/ui/ToastProvider";

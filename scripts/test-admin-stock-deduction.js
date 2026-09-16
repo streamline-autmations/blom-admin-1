@@ -30,7 +30,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 console.log('🧪 Starting Admin Stock Deduction Integration Test...\n');
 
 // Test configuration
-const TEST_PRODUCT_NAME = 'Test Product - Stock Deduction';
 let testOrderId = null;
 let testProductId = null;
 let initialStock = 0;

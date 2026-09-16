@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft, Package, MapPin, FileText, CheckCircle,
-  Truck, User, Clock, CreditCard, AlertCircle, Download, Printer, RefreshCw
+  ArrowLeft, Package, FileText, CheckCircle,
+  Truck, User, Clock, Download, RefreshCw
 } from "lucide-react";
 import { useToast } from "../components/ui/ToastProvider";
-import { supabase } from "../lib/supabase";
-import { FREE_SHIPPING_THRESHOLD_LABEL, qualifiedForFreeShipping } from "../lib/shipping";
 
 const toNumberLoose = (value) => {
   if (value === undefined || value === null) return Number.NaN;
@@ -365,220 +363,6 @@ export default function OrderDetail() {
   if (!order) return <div className="order-not-found">Order not found</div>;
 
   // Receipt generation function
-  const downloadReceipt = () => {
-    const receiptWindow = window.open('', '_blank');
-    const formatMoney = (amount) => `R${(amount / 100).toFixed(2)}`;
-    
-    // Check if order qualified for free delivery
-    const hasFreeShipping = qualifiedForFreeShipping(subtotalCents);
-    
-    // Extract order values safely
-    const receiptSubtotalCents = subtotalCents || 0;
-    const receiptShippingCents = shippingCents || 0;
-    const receiptDiscountCents = discountCents || 0;
-    const receiptTotalCents = totalCents || 0;
-    
-    receiptWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Receipt - Order ${order.order_number || '#' + order.id.slice(0,8)}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            color: #333;
-            background: white;
-          }
-          .receipt-header {
-            text-align: center;
-            margin-bottom: 40px;
-          }
-          .company-name {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 8px;
-          }
-          .receipt-title {
-            font-size: 20px;
-            color: #666;
-            margin-bottom: 20px;
-          }
-          .order-info {
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-          }
-          .order-info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-          }
-          .order-info-label {
-            font-weight: bold;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-          }
-          th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-          }
-          th {
-            background: #f8f9fa;
-            font-weight: bold;
-            color: #666;
-            text-transform: uppercase;
-            font-size: 12px;
-          }
-          .text-right {
-            text-align: right;
-          }
-          .summary {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #333;
-          }
-          .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            color: #333;
-          }
-          .summary-total {
-            font-weight: bold;
-            font-size: 18px;
-            border-top: 2px solid #333;
-            padding-top: 15px;
-            margin-top: 10px;
-            color: #333;
-          }
-          .free-shipping {
-            color: #000;
-            font-weight: bold;
-          }
-          .coupon-discount {
-            color: #000;
-            font-weight: bold;
-          }
-          .print-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-          }
-          .print-btn:hover {
-            background: #0056b3;
-          }
-          @media print {
-            .print-btn { display: none; }
-            body { margin: 20px; }
-          }
-        </style>
-      </head>
-      <body>
-        <button class="print-btn" onclick="window.print()">🖨️ Print</button>
-        <div class="receipt-header">
-          <div class="company-name">BLOM COSMETICS</div>
-          <div class="receipt-title">ORDER RECEIPT</div>
-        </div>
-        
-        <div class="order-info">
-          <div class="order-info-row">
-            <span class="order-info-label">Order Number:</span>
-            <span>${order.order_number || '#' + order.id.slice(0,8)}</span>
-          </div>
-          <div class="order-info-row">
-            <span class="order-info-label">Date:</span>
-            <span>${new Date(order.created_at).toLocaleDateString()}</span>
-          </div>
-          <div class="order-info-row">
-            <span class="order-info-label">Customer:</span>
-            <span>${order.buyer_name || order.customer_name || 'Guest'}</span>
-          </div>
-          <div class="order-info-row">
-            <span class="order-info-label">Email:</span>
-            <span>${order.buyer_email || order.customer_email || '-'}</span>
-          </div>
-        </div>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th class="text-right">Qty</th>
-              <th class="text-right">Price</th>
-              <th class="text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${items.map(item => `
-              <tr>
-                <td>
-                  <div style="font-weight: 600;">${item.name || item.product_name || 'Unknown Item'}</div>
-                  ${item.variant ? `<div style="font-size: 12px; color: #666;">${item.variant}</div>` : ''}
-                </td>
-                <td class="text-right">${item.quantity || 0}</td>
-                <td class="text-right">${formatMoney(
-                  asCentsColumn(item.unit_price_cents) ??
-                  asRandsToCents(item.unit_price) ??
-                  asRandsToCents(item.price) ??
-                  0
-                )}</td>
-                <td class="text-right">${formatMoney(
-                  asCentsColumn(item.line_total_cents) ??
-                  asRandsToCents(item.line_total) ??
-                  ((asCentsColumn(item.unit_price_cents) ??
-                    asRandsToCents(item.unit_price) ??
-                    asRandsToCents(item.price) ??
-                    0) * (item.quantity || 0))
-                )}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-
-        <div class="summary">
-          <div class="summary-row">
-            <span>Subtotal:</span>
-            <span>${formatMoney(receiptSubtotalCents)}</span>
-          </div>
-          <div class="summary-row">
-            <span>Shipping:</span>
-            <span>${formatMoney(receiptShippingCents)}</span>
-          </div>
-          ${hasFreeShipping ? `
-            <div class="summary-row free-shipping">
-              <span>FREE SHIPPING - Order over ${FREE_SHIPPING_THRESHOLD_LABEL}</span>
-              <span></span>
-            </div>
-          ` : ''}
-          ${receiptDiscountCents > 0 ? `
-            <div class="summary-row coupon-discount">
-              <span>${discountLabel}:</span>
-              <span>-${formatMoney(receiptDiscountCents)}</span>
-            </div>
-          ` : ''}
-          <div class="summary-row summary-total">
-            <span>TOTAL:</span>
-            <span>${formatMoney(receiptTotalCents)}</span>
-          </div>
-        </div>
-      </body>
-      </html>
-    `);
-    receiptWindow.document.close();
-  };
 
   // Base44 styling CSS
   const base44Styles = `
@@ -1112,18 +896,6 @@ export default function OrderDetail() {
   }
 
   // Timeline Steps
-  const getStepStatus = (stepName) => {
-    const flow = type === 'collection'
-      ? ['created', 'paid', 'packed', 'collected']
-      : ['created', 'paid', 'packed', 'out_for_delivery', 'delivered'];
-
-    const currentIdx = flow.indexOf(status);
-    const stepIdx = flow.indexOf(stepName);
-
-    if (status === 'cancelled') return 'cancelled';
-    if (currentIdx >= stepIdx) return 'completed';
-    return 'pending';
-  };
 
   return (
     <>

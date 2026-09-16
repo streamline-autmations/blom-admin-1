@@ -8,8 +8,6 @@
  * 3. Database persistence verification
  */
 
-const fs = require('fs');
-const path = require('path');
 
 async function testOrderStatusUpdate() {
   console.log('🧪 Testing Order Status Update Functionality...\n');
@@ -149,23 +147,6 @@ async function testOrderStatusUpdate() {
 }
 
 // Helper function to make HTTP requests
-async function makeRequest(url, options = {}) {
-  const defaultOptions = {
-    timeout: 30000,
-    ...options
-  };
-  
-  try {
-    const response = await fetch(url, defaultOptions);
-    return response;
-  } catch (error) {
-    if (error.name === 'AbortError') {
-      throw new Error('Request timeout');
-    }
-    throw error;
-  }
-}
-
 // Main execution
 if (require.main === module) {
   testOrderStatusUpdate()

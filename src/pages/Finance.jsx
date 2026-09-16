@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/components/data/api';
-import { DollarSign, TrendingDown, TrendingUp, Plus, Calendar } from 'lucide-react';
+import { DollarSign, Plus } from 'lucide-react';
 import { moneyZAR } from '../components/formatUtils';
 import { useToast } from "@/components/ui/use-toast";
 

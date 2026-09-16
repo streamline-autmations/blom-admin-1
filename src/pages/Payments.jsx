@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, ShoppingCart, DollarSign, Package, Target } from 'lucide-react';
 import { moneyZAR } from '../components/formatUtils';

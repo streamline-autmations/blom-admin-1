@@ -9,7 +9,6 @@ const supabase = createClient(
 export const handler = async (event) => {
   try {
     const url = new URL(event.rawUrl || 'http://localhost');
-    const period = url.searchParams.get('period') || 'analytics';
     const startDate = url.searchParams.get('start_date');
     const endDate = url.searchParams.get('end_date');
 

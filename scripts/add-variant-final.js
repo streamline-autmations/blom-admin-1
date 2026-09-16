@@ -19,7 +19,7 @@ function readEnvVars() {
       });
       return envVars;
     }
-  } catch (e) {
+  } catch {
     console.log('No .env file found');
   }
   return {};

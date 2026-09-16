@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { TrendingUp, TrendingDown, DollarSign, Check } from "lucide-react";
+import { TrendingUp, TrendingDown, Check } from "lucide-react";
 import { moneyZAR } from "../components/formatUtils";
 import { useToast } from "../components/ui/ToastProvider";
-import { Banner } from "../components/ui/Banner";
 import { api } from "@/components/data/api";
 
 export default function PriceUpdates() {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { Upload, Save, X, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '../components/ui/ToastProvider';
@@ -10,7 +10,7 @@ export default function Featured() {
   const queryClient = useQueryClient();
 
   // Fetch current featured slots
-  const { data: featuredItems, isLoading: loadingFeatured } = useQuery({
+  const { data: featuredItems } = useQuery({
     queryKey: ['featuredItems'],
     queryFn: async () => {
       const { data, error } = await supabase

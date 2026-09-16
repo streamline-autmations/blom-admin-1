@@ -10,7 +10,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-export async function handler(event, context) {
+export async function handler(event, _context) {
   try {
     // Parse query parameters
     const url = new URL(event.rawUrl);
@@ -184,7 +184,7 @@ export async function handler(event, context) {
 
     (fulfillmentData || []).forEach((order) => {
       const dateKey = new Date(order.created_at).toISOString().split('T')[0];
-      if (salesTrends.hasOwnProperty(dateKey)) {
+      if (Object.prototype.hasOwnProperty.call(salesTrends, dateKey)) {
         salesTrends[dateKey] += order.total_cents || 0;
         ordersTrends[dateKey] += 1;
       }

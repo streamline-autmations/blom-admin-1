@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import ProductCard from "../components/ProductCard";
@@ -8,13 +8,6 @@ import { supabase } from "../components/supabaseClient";
 import { uploadToCloudinary } from "../lib/cloudinary";
 import { createPageUrl } from "../utils";
 
-const slugify = (value) =>
-  value
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
 
 const generateSKU = () => {
   const prefix = 'BUN';
@@ -82,25 +75,6 @@ export default function BundleEdit() {
     }
   }, []);
 
-  const handleVariantImageUpload = async (index, file) => {
-    if (!file) return;
-
-    try {
-      showToast('info', 'Uploading variant image...');
-      const { original } = await uploadToCloudinary(file);
-
-      const current = form.variants[index];
-      const updated = typeof current === "string"
-        ? { label: current, image: original }
-        : { ...current, image: original };
-
-      updateArr("variants", index, updated);
-      showToast('success', 'Variant image uploaded');
-    } catch (error) {
-      showToast('error', 'Image upload failed');
-      console.error('Variant image upload error:', error);
-    }
-  };
 
   // Load bundle from database
   useEffect(() => {
@@ -609,7 +583,6 @@ export default function BundleEdit() {
     );
   };
 
-  const inputClass = (hasError) => `product-form-input${hasError ? " border-red-500 focus:ring-rose-500" : ""}`;
   const textareaClass = (hasError) => `product-form-textarea${hasError ? " border-red-500 focus:ring-rose-500" : ""}`;
 
   if (loading) {
@@ -1374,7 +1347,7 @@ export default function BundleEdit() {
                             const { original } = await uploadToCloudinary(file);
                             update("thumbnail_url", original);
                             showToast('success', 'Image uploaded');
-                          } catch (err) {
+                          } catch  {
                           showToast('error', 'Upload failed');
                         }
                       }}
@@ -1429,7 +1402,7 @@ export default function BundleEdit() {
                             const { original } = await uploadToCloudinary(file);
                             updateArr("gallery_urls", index, original);
                             showToast('success', 'Image uploaded');
-                          } catch (err) {
+                          } catch  {
                               showToast('error', 'Upload failed');
                             }
                           }}

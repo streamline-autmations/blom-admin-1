@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/ToastProvider';
@@ -53,7 +53,7 @@ export default function SeedNotifications() {
       } else {
         showToast(data.error || 'Merge failed', 'error');
       }
-    } catch (e) {
+    } catch {
       showToast('Network error during merge', 'error');
     } finally {
       setLoading(false);
@@ -336,7 +336,7 @@ export default function SeedNotifications() {
 
         <div className="mt-6">
           <h3 className="font-semibold text-sm mb-2">Normalize Categories</h3>
-          <p className="text-sm text-gray-500 mb-4">Converts legacy category names (e.g. "Acrylic System - Core Acrylics") into slug categories used by the Shop.</p>
+          <p className="text-sm text-gray-500 mb-4">Converts legacy category names (e.g. &quot;Acrylic System - Core Acrylics&quot;) into slug categories used by the Shop.</p>
           <Button onClick={normalizeProductCategories} disabled={loading} variant="outline" className="w-full md:w-auto">
             {loading ? 'Processing...' : 'Normalize Product Categories'}
           </Button>
@@ -359,7 +359,7 @@ export default function SeedNotifications() {
 
         <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
           <h2 className="text-xl font-semibold mb-2">Fix Bundle Categories</h2>
-          <p className="text-sm text-gray-500 mb-4">Moves "Collection" products to "Bundle Deals" category.</p>
+          <p className="text-sm text-gray-500 mb-4">Moves &quot;Collection&quot; products to &quot;Bundle Deals&quot; category.</p>
           <p className="text-xs text-gray-400 mb-4">Includes: Red Collection, High Tea, Blossom Sugar Rush, etc.</p>
           <Button onClick={fixBundles} disabled={loading} variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50">
             {loading ? 'Processing...' : 'Fix Specific Bundles'}
@@ -368,7 +368,7 @@ export default function SeedNotifications() {
 
         <div className="p-6 bg-white rounded-lg shadow border border-gray-200">
           <h2 className="text-xl font-semibold mb-2">Repair All Data</h2>
-          <p className="text-sm text-gray-500 mb-4">Fixes missing variants and images for ALL products/bundles to prevent "Oops" errors on frontend.</p>
+          <p className="text-sm text-gray-500 mb-4">Fixes missing variants and images for ALL products/bundles to prevent &quot;Oops&quot; errors on frontend.</p>
           <Button onClick={fixAllData} disabled={loading} variant="outline" className="text-green-600 border-green-200 hover:bg-green-50 w-full">
             {loading ? 'Processing...' : 'Run Data Repair (Save All)'}
           </Button>

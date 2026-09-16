@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { createPageUrl } from "@/utils";
-import { api } from "../components/data/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Star, Check, X, Trash2 } from "lucide-react";
 import { useToast } from "../components/ui/ToastProvider";

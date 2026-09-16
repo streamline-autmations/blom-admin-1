@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { moneyZAR } from "./formatUtils";
 import { discountLabel } from "./helpers/pricing";
 import { useActiveSpecials } from "./hooks/useActiveSpecials";

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { api } from "../components/data/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Star, Send } from "lucide-react";

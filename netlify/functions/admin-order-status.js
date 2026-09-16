@@ -312,7 +312,7 @@ export const handler = async (e) => {
 
     // 4. Send webhook with comprehensive data
     const orderData = extractOrderData(order);
-    const webhookResult = await sendStatusWebhook(orderData, status, currentStatus, orderItems);
+    await sendStatusWebhook(orderData, status, currentStatus, orderItems);
 
     // 5. CRITICAL: Enhanced Stock Deduction + Analytics Update using Product Mapping System
     let stockProcessingResults = {

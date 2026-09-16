@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { ArrowLeft, Save, Plus, X, Monitor, Smartphone, Calculator, Search } from "lucide-react";
 import { moneyZAR } from "./formatUtils";
 import { ImageUploader } from "@/components/ImageUploader";
@@ -52,7 +52,7 @@ export default function BundleEditor({ bundle, onSave, onCancel, isSaving, title
     timestamp: new Date().toISOString()
   } : null;
 
-  const { webhookConfigured } = useWebhookSender(webhookData, 'bundle.updated');
+  useWebhookSender(webhookData, 'bundle.updated');
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));

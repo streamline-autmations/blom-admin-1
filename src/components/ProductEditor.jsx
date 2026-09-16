@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ArrowLeft, Save, Plus, X, Monitor, Smartphone } from "lucide-react";
 import { moneyZAR } from "./formatUtils";
 import { slugify } from "./helpers";
@@ -62,7 +62,7 @@ export default function ProductEditor({ product, onSave, onCancel, isSaving, tit
     display_price_cents: getDisplayPriceCents('product', formData.id, formData.price)
   } : null;
 
-  const { webhookConfigured } = useWebhookSender(webhookData, 'product.updated');
+  useWebhookSender(webhookData, 'product.updated');
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
