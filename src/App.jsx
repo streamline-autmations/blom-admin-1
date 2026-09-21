@@ -68,6 +68,7 @@ import Reviews from '@/pages/Reviews'
 import Messages from '@/pages/Messages'
 import MessageDetail from '@/pages/MessageDetail'
 import Finance from '@/pages/Finance'
+import Affiliates from '@/pages/Affiliates'
 import Orders from '@/pages/Orders'
 import OrderDetail from '@/pages/OrderDetail'
 import CourseBookings from '@/pages/CourseBookings'
@@ -204,6 +205,9 @@ const AuthenticatedApp = () => {
         {/* Messages - Canonical Routes */}
         <Route path="/messages" element={<Messages/>} />
         <Route path="/messages/:id" element={<MessageDetail/>} />
+
+        {/* Affiliates - Canonical Routes */}
+        <Route path="/affiliates" element={<Affiliates/>} />
 
         {/* Finance - Canonical Routes */}
         <Route path="/finance" element={<Finance/>} />

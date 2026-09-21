@@ -32,7 +32,8 @@ import {
   // Added
   Menu,
   // Added for mobile hamburger menu
-  BookOpen // Added for Course Bookings
+  BookOpen, // Added for Course Bookings
+  Handshake // Added for Affiliates
 } from "lucide-react";
 
 
@@ -63,7 +64,8 @@ const navigationGroups = [
     items: [
       { name: "Reviews", url: "Reviews", icon: Star },
       { name: "Messages", url: "Messages", icon: MessageSquare },
-      { name: "Contacts", url: "Contacts", icon: Users }
+      { name: "Contacts", url: "Contacts", icon: Users },
+      { name: "Affiliates", url: "affiliates", icon: Handshake }
     ]
   },
   {
