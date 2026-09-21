@@ -1,6 +1,6 @@
 // Simple test function to debug order status updates
 import { createClient } from "@supabase/supabase-js";
-import { withAdminAuth } from "./_lib/with-admin-auth";
+import { withAdminAuth } from "./_lib/admin-auth.js";
 
 const baseHandler = async (e) => {
   if (e.httpMethod !== "POST") {

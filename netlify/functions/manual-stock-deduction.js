@@ -4,7 +4,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { withAdminAuth } from "./_lib/with-admin-auth";
+import { withAdminAuth } from "./_lib/admin-auth.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
