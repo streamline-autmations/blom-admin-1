@@ -1,9 +1,10 @@
 import { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export const handler: Handler = async (event) => {
+const baseHandler: Handler = async (event) => {
   try {
     const period = event.queryStringParameters?.period || '30';
     console.log(`📊 Calculating finance stats for period: ${period}`);
@@ -138,3 +139,5 @@ export const handler: Handler = async (event) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

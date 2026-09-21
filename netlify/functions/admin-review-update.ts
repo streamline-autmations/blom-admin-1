@@ -1,5 +1,6 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 const s = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
 const CORS = {
@@ -7,7 +8,7 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type"
 };
 
-export const handler: Handler = async (e) => {
+const baseHandler: Handler = async (e) => {
   if (e.httpMethod === "OPTIONS") return { statusCode: 200, headers: CORS };
   if (e.httpMethod !== "POST") return { statusCode: 405, headers: CORS };
 
@@ -43,3 +44,5 @@ export const handler: Handler = async (e) => {
     return { statusCode: 500, headers: CORS, body: err.message || "Update failed" };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

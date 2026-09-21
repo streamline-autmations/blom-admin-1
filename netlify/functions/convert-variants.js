@@ -2,8 +2,9 @@
 // This function will convert existing JSON variants into separate products
 
 import { createClient } from '@supabase/supabase-js';
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
-export const handler = async (event, _context) => {
+const baseHandler = async (event, _context) => {
   // Set CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -242,3 +243,5 @@ export const handler = async (event, _context) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

@@ -1,5 +1,6 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const headers = {
   "Content-Type": "application/json",
@@ -12,7 +13,7 @@ const s = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_R
   auth: { persistSession: false },
 });
 
-export const handler: Handler = async (event) => {
+const baseHandler: Handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
   }
@@ -93,3 +94,5 @@ export const handler: Handler = async (event) => {
   }
 };
 
+
+export const handler = withAdminAuth(baseHandler);

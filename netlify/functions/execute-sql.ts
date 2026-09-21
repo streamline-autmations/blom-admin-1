@@ -1,12 +1,13 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const headers = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*'
 };
 
-export const handler: Handler = async (event) => {
+const baseHandler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') {
       return {
@@ -95,3 +96,5 @@ export const handler: Handler = async (event) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

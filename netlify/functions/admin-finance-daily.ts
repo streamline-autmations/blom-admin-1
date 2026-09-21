@@ -1,11 +1,12 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const s = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
   auth: { persistSession: false }
 });
 
-export const handler: Handler = async () => {
+const baseHandler: Handler = async () => {
   try {
     // Try view first (v_sales_daily); if missing, fall back to quick aggregates
     let rows: any[] = [];
@@ -41,3 +42,5 @@ export const handler: Handler = async () => {
 };
 
 
+
+export const handler = withAdminAuth(baseHandler);

@@ -1,5 +1,6 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 // Helper to get Supabase admin client
 const getSupabaseAdmin = () => {
@@ -15,7 +16,7 @@ const headers = {
   'Access-Control-Allow-Origin': '*'
 };
 
-export const handler: Handler = async (event) => {
+const baseHandler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, headers, body: JSON.stringify({ ok: false, error: 'Method Not Allowed' }) };
   }
@@ -110,3 +111,5 @@ export const handler: Handler = async (event) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

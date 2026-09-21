@@ -1,10 +1,11 @@
 // netlify/functions/create-operating-cost.ts
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const s = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export const handler: Handler = async (e) => {
+const baseHandler: Handler = async (e) => {
   if (e.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
 
   const b = JSON.parse(e.body || "{}");
@@ -25,3 +26,5 @@ export const handler: Handler = async (e) => {
 
 
 
+
+export const handler = withAdminAuth(baseHandler);

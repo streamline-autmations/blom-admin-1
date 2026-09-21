@@ -1,6 +1,7 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const headers = {
   "Content-Type": "application/json",
@@ -46,7 +47,7 @@ const buildOrderNumber = (ref: string) => {
   return `BL-${token || randomUUID().replace(/-/g, "").slice(-10).toUpperCase()}`;
 };
 
-export const handler: Handler = async (event) => {
+const baseHandler: Handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
   }
@@ -319,3 +320,5 @@ export const handler: Handler = async (event) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

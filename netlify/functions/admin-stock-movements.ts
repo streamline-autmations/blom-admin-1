@@ -1,9 +1,10 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const s = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export const handler: Handler = async (e) => {
+const baseHandler: Handler = async (e) => {
   try {
     const limit = Number(e.queryStringParameters?.limit || 100);
     const filter = e.queryStringParameters?.filter || 'all'; // 'all', 'manual', 'order'
@@ -70,3 +71,5 @@ export const handler: Handler = async (e) => {
     return { statusCode: 500, body: err.message || "admin-stock-movements failed" };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

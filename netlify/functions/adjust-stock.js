@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -6,7 +7,7 @@ const supabase = createClient(
   { auth: { persistSession: false } }
 );
 
-export const handler = async (event) => {
+const baseHandler = async (event) => {
   try {
     const { productId, delta, reason, costPriceCents, variantIndex } = JSON.parse(event.body || "{}");
 
@@ -168,3 +169,5 @@ export const handler = async (event) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

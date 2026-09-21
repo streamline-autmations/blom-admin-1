@@ -1,7 +1,10 @@
 import '@/guards/block-supabase-rest'
+import { attachAdminAuthToFunctionCalls } from '@/lib/attach-admin-auth'
 import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
+
+attachAdminAuthToFunctionCalls()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
