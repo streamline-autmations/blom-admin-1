@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../components/supabaseClient";
 import { CheckCircle, XCircle, AlertCircle, Loader } from "lucide-react";
 import { Banner } from "../components/ui/Banner";
@@ -29,7 +29,7 @@ export default function SupabaseDebug() {
       if (parts.length > 0 && parts[parts.length - 2] === 'supabase') {
         projectRef = parts[0];
       }
-    } catch (e) {
+    } catch {
       // Invalid URL
     }
   }

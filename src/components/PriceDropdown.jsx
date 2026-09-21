@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { TrendingUp, TrendingDown, ChevronDown, ChevronUp } from "lucide-react";
 
-export default function PriceDropdown({ currentPrice, comparePrice, onPriceChange }) {
+export default function PriceDropdown({ currentPrice, onPriceChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const [customPrice, setCustomPrice] = useState("");
 

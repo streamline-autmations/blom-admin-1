@@ -83,11 +83,6 @@ export default function Messages() {
     return date.toLocaleString('en-ZA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
   };
 
-  const getStatusBadgeClass = (status) => {
-    if (status === "new") return "bg-red-500/20 text-red-700 dark:text-red-400";
-    if (status === "handled") return "bg-green-500/20 text-green-700 dark:text-green-400";
-    return "bg-gray-500/20 text-gray-700 dark:text-gray-400";
-  };
 
   // Base44 styling CSS
   const base44Styles = `

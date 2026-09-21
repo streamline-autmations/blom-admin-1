@@ -1,25 +1,27 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  BarChart3, TrendingUp, ShoppingCart, DollarSign, Users, Package, 
-  Calendar, Filter, Download, RefreshCw, ChevronDown, ChevronRight,
-  Truck, Store, Target, TrendingDown, Eye, ArrowUpRight
+import {
+  BarChart3,
+  TrendingUp,
+  DollarSign,
+  Users,
+  Package,
+  RefreshCw,
+  Truck,
+  Store,
+  Target,
+  TrendingDown,
+  Eye,
+  ArrowUpRight
 } from "lucide-react";
 import { moneyZAR } from "../components/formatUtils";
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
   Line,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
   Area,
   AreaChart
 } from "recharts";
@@ -120,7 +122,6 @@ const ProductDrillDown = ({ product, onClose }) => {
 export default function AnalyticsEnhanced() {
   const [selectedPeriod, setSelectedPeriod] = useState(30);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [viewMode, setViewMode] = useState('overview'); // overview, products, customers, inventory
 
   // Fetch top selling products data first (using stock movement logic)
   const { data: topSellingData, isLoading: topSellingLoading } = useQuery({
@@ -153,7 +154,7 @@ export default function AnalyticsEnhanced() {
   const isLoading = topSellingLoading || analyticsLoading;
 
   // Fetch existing orders for backward compatibility
-  const { data: ordersData = [] } = useQuery({
+  const { data: _ordersData = [] } = useQuery({
     queryKey: ['orders'],
     queryFn: async () => {
       const res = await fetch('/.netlify/functions/admin-orders');
@@ -236,7 +237,7 @@ export default function AnalyticsEnhanced() {
     );
   }
 
-  const { topProducts, deliveryPerformance, customers, conversions, inventory, kpis, trends } = enhancedMetrics;
+  const { topProducts, deliveryPerformance, customers, inventory, kpis, trends } = enhancedMetrics;
 
   return (
     <>

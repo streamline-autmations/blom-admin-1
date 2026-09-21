@@ -1,6 +1,5 @@
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3, TrendingUp, ShoppingCart, DollarSign, Users, Package, Loader2 } from "lucide-react";
+import { BarChart3, TrendingUp, ShoppingCart, DollarSign, Package, Loader2 } from "lucide-react";
 import { moneyZAR } from "../components/formatUtils";
 import {
   BarChart,
@@ -9,9 +8,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line
+  ResponsiveContainer
 } from "recharts";
 
 function MetricCard({ title, value, subtitle, icon: Icon, loading }) {

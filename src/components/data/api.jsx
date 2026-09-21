@@ -1,5 +1,4 @@
 // Check if we're in development mode
-const isDevelopment = import.meta.env.MODE === 'development';
 
 // DataAPI interface - Falls back to adapters when set, or uses direct calls for production
 export let api = {

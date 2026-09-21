@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { api } from "../components/data/api";
 import { useMutation } from "@tanstack/react-query";
 import { MessageSquare, Send } from "lucide-react";
@@ -107,7 +107,7 @@ export default function MessageIntake() {
             </div>
             <h1 className="success-title">Message Sent!</h1>
             <p className="success-text">
-              Thank you for contacting us. We've received your message and will get back to you shortly.
+              Thank you for contacting us. We&apos;ve received your message and will get back to you shortly.
             </p>
             <button className="btn-new" onClick={() => setSubmitted(false)}>
               Send Another Message
@@ -255,7 +255,7 @@ export default function MessageIntake() {
               <MessageSquare className="w-8 h-8" />
             </div>
             <h1 className="intake-title">Contact Us</h1>
-            <p className="intake-subtitle">Send us a message and we'll get back to you soon</p>
+            <p className="intake-subtitle">Send us a message and we&apos;ll get back to you soon</p>
           </div>
 
           <form onSubmit={handleSubmit}>

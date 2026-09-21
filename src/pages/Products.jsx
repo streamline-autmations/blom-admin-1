@@ -1,10 +1,10 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { api } from "../components/data/api"; // Updated path for api
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Edit2, Trash2, Search, Infinity, Hammer, Archive, Check } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, Infinity as InfinityIcon, Hammer, Archive, Check } from "lucide-react";
 import { moneyZAR, dateShort } from "../components/formatUtils";
 import { useToast } from "../components/ui/ToastProvider";
 import { useActiveSpecials } from "../components/hooks/useActiveSpecials";
@@ -123,7 +123,6 @@ export default function Products() {
       }
       
       setSelectedIds([]);
-      setBulkAction(null);
     },
     onError: (error) => {
       showToast('error', error.message || 'Failed to delete products');
@@ -146,7 +145,6 @@ export default function Products() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       showToast('success', `${selectedIds.length} products archived successfully`);
       setSelectedIds([]);
-      setBulkAction(null);
     },
     onError: (error) => {
       showToast('error', error.message || 'Failed to archive products');
@@ -169,7 +167,6 @@ export default function Products() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       showToast('success', `${selectedIds.length} products activated successfully`);
       setSelectedIds([]);
-      setBulkAction(null);
     },
     onError: (error) => {
       showToast('error', error.message || 'Failed to activate products');
@@ -1107,7 +1104,7 @@ export default function Products() {
                       <td>
                         {stockType === 'unlimited' ? (
                           <span className="stock-type-badge stock-type-unlimited">
-                            <Infinity size={12} />
+                            <InfinityIcon size={12} />
                             Unlimited
                           </span>
                         ) : stockType === 'made_on_demand' ? (

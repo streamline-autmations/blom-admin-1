@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { RefreshCw, Filter, X, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
@@ -10,7 +10,7 @@ export default function CourseBookings() {
   const [page, setPage] = useState(1);
   const { markAsRead } = useNotifications();
 
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize] = useState(20);
   const [filters, setFilters] = useState({
     course_slug: '',
     buyer_email: '',
@@ -37,7 +37,6 @@ export default function CourseBookings() {
   });
 
   const bookings = data?.items || [];
-  const total = data?.total || 0;
 
   const clearFilters = () => {
     setFilters({

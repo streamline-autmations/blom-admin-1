@@ -48,7 +48,7 @@ async function runDiagnostics() {
 
 async function checkDatabaseSchema() {
   // Check orders table structure
-  const { data: ordersSchema, error: ordersError } = await supabase
+  const { data: _ordersSchema, error: ordersError } = await supabase
     .rpc('get_table_schema', { table_name: 'orders' });
   
   if (ordersError) {
@@ -69,7 +69,7 @@ async function checkDatabaseSchema() {
   }
   
   // Check order_items table structure
-  const { data: itemsSchema, error: itemsError } = await supabase
+  const { data: itemsSchema, error: _itemsError } = await supabase
     .from('information_schema.columns')
     .select('column_name, data_type, is_nullable')
     .eq('table_name', 'order_items')

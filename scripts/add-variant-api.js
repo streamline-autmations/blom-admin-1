@@ -1,5 +1,4 @@
 // Script to add variant manually via save-product API
-const fs = require('fs');
 
 async function addVariant() {
   try {

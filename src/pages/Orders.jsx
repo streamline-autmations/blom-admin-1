@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Eye, RefreshCw, Truck, Package, Archive, Filter, X, FileText, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ConfirmDialog } from '../components/ui/dialog';
@@ -147,7 +147,7 @@ export default function Orders() {
 
   // Listen for order updates from other pages
   useEffect(() => {
-    const handleOrderUpdate = (event) => {
+    const handleOrderUpdate = (_event) => {
       console.log('🔄 Order update detected, refetching orders...');
       refetch();
     };

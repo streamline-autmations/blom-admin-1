@@ -1,38 +1,37 @@
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { createPageUrl } from "@/utils";
 import { ToastProvider } from "./components/ui/ToastProvider";
 import { useNotifications } from "@/contexts/NotificationContext";
 import {
-  LayoutDashboard, // Replaced Home
+  // Replaced Home
   Package,
   Layers,
-  Sparkles, // Added
+  Sparkles,
+  // Added
   ShoppingCart,
   CreditCard,
-  Archive, // Replaced Warehouse
-  Truck,
+  // Replaced Warehouse
   MessageSquare,
   Star,
   Users,
   DollarSign,
-  Mail,
   Tag,
   BarChart3,
-  Settings,
-  UserCog, // Added
-  Receipt, // Added
+  // Added
+  // Added
   ChevronDown,
   ChevronRight,
   X,
   Sun,
   Moon,
-  Bell, // Added
-  Search, // Added
-  User, // Added
-  Menu, // Added for mobile hamburger menu
+  // Added
+  // Added
+  // Added
+  Menu,
+  // Added for mobile hamburger menu
   BookOpen // Added for Course Bookings
 } from "lucide-react";
 
@@ -78,7 +77,6 @@ const navigationGroups = [
 function NavGroup({ group, currentPath, isCollapsed, onNavClick }) {
   const [isOpen, setIsOpen] = useState(true);
   const { counts } = useNotifications();
-  const hasActive = group.items.some(item => currentPath.includes(item.url.toLowerCase()));
 
   const getBadgeCount = (url) => {
     // Debug logging

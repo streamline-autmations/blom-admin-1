@@ -1,15 +1,14 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, Plus, Mail, Phone, Download, ArrowUpDown, Trash2 } from "lucide-react";
 import { useToast } from "../components/ui/ToastProvider";
-import { Banner } from "../components/ui/Banner";
 import { api } from "@/components/data/api";
 import { Link } from "react-router-dom";
 
 export default function Contacts() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
-  const [sourceFilter, setSourceFilter] = useState("all");
+  const [sourceFilter] = useState("all");
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
   const [searchQuery, setSearchQuery] = useState("");
   const { showToast } = useToast();
@@ -141,25 +140,7 @@ export default function Contacts() {
     showToast('success', `Exported ${contacts.length} contacts`);
   };
 
-  const getSourceLabel = (source) => {
-    const labels = {
-      beauty_club_signup: "Beauty Club",
-      account_creation: "Account",
-      manual: "Manual",
-      order: "Order",
-    };
-    return labels[source] || source;
-  };
 
-  const getSourceColor = (source) => {
-    const colors = {
-      beauty_club_signup: "#e91e63",
-      account_creation: "#2196f3",
-      manual: "#9e9e9e",
-      order: "#4caf50",
-    };
-    return colors[source] || "#9e9e9e";
-  };
 
   return (
     <>

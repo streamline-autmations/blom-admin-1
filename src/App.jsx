@@ -23,7 +23,7 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     return { hasError: true };
   }
 
@@ -65,11 +65,8 @@ import BundleNew from '@/pages/BundleNew'
 import CoursesPage from '@/pages/Courses'
 import CourseEdit from '@/pages/CourseEdit'
 import Reviews from '@/pages/Reviews'
-import ContactsPage from '@/pages/Contacts'
-import ContactDetail from '@/pages/ContactDetail'
 import Messages from '@/pages/Messages'
 import MessageDetail from '@/pages/MessageDetail'
-import Stock from '@/pages/Stock'
 import Finance from '@/pages/Finance'
 import Orders from '@/pages/Orders'
 import OrderDetail from '@/pages/OrderDetail'

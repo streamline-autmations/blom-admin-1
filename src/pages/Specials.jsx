@@ -1,9 +1,6 @@
-import React, { useState, useMemo } from "react";
-import { Sparkles, Plus, Calendar, Target, TrendingDown, Edit, Trash2, TrendingUp, X, Search, Tag } from "lucide-react";
-import { moneyZAR, dateTime } from "../components/formatUtils";
-import { calcSpecialPrice } from "../components/helpers";
+import { useState, useMemo } from "react";
+import { Sparkles, Plus, Edit, Trash2, TrendingUp, X, Search, Tag } from "lucide-react";
 import { useToast } from "../components/ui/ToastProvider";
-import { Banner } from "../components/ui/Banner";
 import { api } from "@/components/data/api";
 import { supabase } from '../lib/supabase';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -37,18 +34,9 @@ export default function Specials() {
   const [couponFilter, setCouponFilter] = useState('all'); // 'all', 'signup', 'created', 'active', 'inactive'
 
   // Special/Promotion form state
-  const [formData, setFormData] = useState({
-    title: "",
-    starts_at: "",
-    ends_at: "",
-    scope: "product",
-    target_ids: [],
-    discount_type: "percent",
-    discount_value: ""
-  });
 
   // Data fetching
-  const { data: products = [], isFetching: productsFetching } = useQuery({
+  const { isFetching: productsFetching } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const list = await (api?.listProducts?.() || Promise.resolve([]));
@@ -56,7 +44,7 @@ export default function Specials() {
     },
   });
 
-  const { data: bundles = [], isFetching: bundlesFetching } = useQuery({
+  const { isFetching: bundlesFetching } = useQuery({
     queryKey: ['bundles'],
     queryFn: async () => {
       const list = await (api?.listBundles?.() || Promise.resolve([]));
@@ -64,7 +52,7 @@ export default function Specials() {
     },
   });
 
-  const { data: specials = [], isFetching: specialsFetching } = useQuery({
+  const { isFetching: specialsFetching } = useQuery({
     queryKey: ['specials'],
     queryFn: async () => {
       const list = await (api?.listSpecials?.() || Promise.resolve([]));
@@ -125,103 +113,10 @@ export default function Specials() {
     }
   }, [coupons, couponFilter]);
 
-  // Special/Promotion mutation
-  const activateMutation = useMutation({
-    mutationFn: async (data) => {
-      console.log('🔄 Creating special with data:', data);
-      
-      const discountValueNum = parseFloat(data.discount_value);
-      if (isNaN(discountValueNum)) {
-        throw new Error('Discount value must be a valid number.');
-      }
 
-      const payload = { ...data, discount_value: discountValueNum, status: 'active' };
-      console.log('📦 Final payload for API:', payload);
 
-      const webhookUrl = import.meta.env.VITE_SPECIALS_WEBHOOK;
-      if (webhookUrl) {
-        try {
-          const webhookResponse = await fetch(webhookUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
 
-          if (!webhookResponse.ok) {
-            console.warn(`Webhook call failed with status ${webhookResponse.status}: ${webhookResponse.statusText}`);
-          }
-        } catch (err) {
-          console.warn('Webhook call failed:', err);
-        }
-      }
-      
-      try {
-        console.log('🚀 Calling api.upsertSpecial...');
-        const result = await api.upsertSpecial(payload);
-        console.log('✅ Special created successfully:', result);
-        return result;
-      } catch (error) {
-        console.error('❌ Special creation failed:', error);
-        console.error('Error details:', error.message, error.stack);
-        throw error;
-      }
-    },
-    onSuccess: (result) => {
-      console.log('🎉 Special created successfully, refreshing data...');
-      console.log('Created special:', result);
-      
-      // Force refresh all related queries
-      queryClient.invalidateQueries({ queryKey: ['specials'] });
-      queryClient.refetchQueries({ queryKey: ['specials'] });
-      
-      showToast('success', 'Special activated successfully');
-      setFormData({
-        title: "",
-        starts_at: "",
-        ends_at: "",
-        scope: "product",
-        target_ids: [],
-        discount_type: "percent",
-        discount_value: ""
-      });
-    },
-    onError: (error) => {
-      console.error('Error activating special:', error);
-      showToast('error', error.message || 'Failed to activate special');
-    },
-  });
 
-  const updateField = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const toggleTarget = (id) => {
-    setFormData(prev => ({
-      ...prev,
-      target_ids: prev.target_ids.includes(id)
-        ? prev.target_ids.filter(x => x !== id)
-        : [...prev.target_ids, id]
-    }));
-  };
-
-  const handleActivate = async () => {
-    if (!formData.title || !formData.starts_at || !formData.ends_at || formData.discount_value === "") {
-      showToast('error', 'Please fill all required fields');
-      return;
-    }
-    if (formData.scope !== 'sitewide' && formData.target_ids.length === 0) {
-      showToast('error', `Please select at least one ${formData.scope === 'product' ? 'product' : 'bundle'}`);
-      return;
-    }
-
-    await activateMutation.mutateAsync(formData);
-  };
-
-  const getTargets = () => {
-    if (formData.scope === 'product') return products;
-    if (formData.scope === 'bundle') return bundles;
-    return [];
-  };
 
   // Coupon handlers
   const handleAddNewCoupon = () => {
@@ -292,27 +187,9 @@ export default function Specials() {
     }
   };
 
-  const selectedTargets = (Array.isArray(getTargets()) ? getTargets() : []).filter(t => formData.target_ids.includes(t?.id));
-  const specialsSafe = Array.isArray(specials) ? specials : [];
-  const activeSpecials = specialsSafe.filter(s => s?.status === 'active');
-  const scheduledSpecials = specialsSafe.filter(s => s?.status === 'scheduled');
-  const expiredSpecials = specialsSafe.filter(s => s?.status === 'expired');
-  const allSpecials = specialsSafe; // All specials for management
+   // All specials for management
   
-  // Combine specials and coupons for the "All Specials" tab
-  const allItems = [
-    ...allSpecials.map(s => ({ ...s, type: 'special' })),
-    ...coupons.map(c => ({ 
-      ...c, 
-      type: 'coupon',
-      title: c.code,
-      starts_at: c.valid_from,
-      ends_at: c.valid_until,
-      status: c.is_active ? 'active' : 'inactive'
-    }))
-  ];
 
-  const saving = activateMutation.isPending;
 
   if (loading) {
     return (

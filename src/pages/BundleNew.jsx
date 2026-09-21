@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Search } from "lucide-react"; // Added Search icon
 import ProductCard from "../components/ProductCard";
@@ -881,7 +881,7 @@ export default function BundleNew() {
                             const { original } = await uploadToCloudinary(file);
                             update("thumbnail_url", original);
                             showToast('success', 'Image uploaded');
-                          } catch (err) {
+                          } catch {
                             showToast('error', 'Upload failed');
                           }
                         }}
@@ -935,7 +935,7 @@ export default function BundleNew() {
                                 const { original } = await uploadToCloudinary(file);
                                 updateArr("gallery_urls", index, original);
                                 showToast('success', 'Image uploaded');
-                              } catch (err) {
+                              } catch {
                                 showToast('error', 'Upload failed');
                               }
                             }}

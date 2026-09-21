@@ -298,7 +298,7 @@ export function createMockAdapter() {
       return [];
     },
 
-    async getCourse(id) {
+    async getCourse(_id) {
       await new Promise(resolve => setTimeout(resolve, 0));
       return null;
     },
@@ -431,7 +431,7 @@ export function createMockAdapter() {
        return this.listCoursePurchases({ course_slug });
     },
 
-    async getCoursePurchase(id) {
+    async getCoursePurchase(_id) {
       await new Promise(resolve => setTimeout(resolve, 0));
       return null;
     },
@@ -767,7 +767,7 @@ export function createMockAdapter() {
       return updated;
     },
 
-    async estimateShipping(params) {
+    async estimateShipping(_params) {
       await new Promise(resolve => setTimeout(resolve, 300));
       
       // Mock shipping rates

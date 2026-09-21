@@ -10,7 +10,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-export async function handler(event, context) {
+export async function handler(event, _context) {
   try {
     const { order_id } = JSON.parse(event.body || '{}');
     

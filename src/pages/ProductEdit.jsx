@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import ProductCard from "../components/ProductCard";
@@ -130,7 +130,7 @@ export default function ProductEdit() {
   const [viewMode, setViewMode] = useState("desktop");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCustomCategory, setShowCustomCategory] = useState(false);
-  const [allProducts, setAllProducts] = useState([]);
+  const [, setAllProducts] = useState([]);
   const [dynamicCategories, setDynamicCategories] = useState([]);
   const [fullscreenPreview, setFullscreenPreview] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -140,7 +140,6 @@ export default function ProductEdit() {
   const [uploadLock, setUploadLock] = useState(false);
   
   // Track which variants are being edited
-  const [editingVariantPrice, setEditingVariantPrice] = useState({});
   
   // Monitor all form state changes with comprehensive tracking
   useEffect(() => {
@@ -166,82 +165,6 @@ export default function ProductEdit() {
     };
   }, [id, uploadLock, isUploading]);
 
-  const handleVariantImageUpload = async (index, file) => {
-    console.log('🖼️ Starting variant image upload for index:', index, 'file:', {
-      name: file?.name,
-      size: file?.size,
-      type: file?.type,
-      timestamp: new Date().toISOString()
-    });
-
-    if (!file) {
-      console.log('❌ No file provided for variant upload');
-      return;
-    }
-
-    console.log('🖼️ Current variant state before upload:', {
-      index,
-      currentVariant: form.variants[index],
-      allVariants: form.variants.map((v, i) => ({ index: i, type: typeof v, name: typeof v === 'string' ? v : v?.name, image: typeof v === 'string' ? '' : v?.image }))
-    });
-
-    // Apply comprehensive upload lock
-    setIsUploading(true);
-    setUploadLock(true);
-    console.log('🔒 Applying comprehensive upload lock');
-
-    try {
-      console.log('📤 Uploading variant image to Cloudinary...');
-      showToast('info', 'Uploading variant image...');
-      const { original } = await uploadToCloudinary(file);
-      console.log('✅ Variant upload successful, URL:', original);
-
-      console.log('🔄 Updating variant state with new URL...');
-      // Force explicit state update with detailed logging
-      setForm(prev => {
-        console.log('🔄 setForm called for variant update:', {
-          index,
-          newUrl: original,
-          uploadLock,
-          isUploading,
-          currentVariants: prev.variants.map((v, i) => ({ index: i, type: typeof v, name: typeof v === 'string' ? v : v?.name, image: typeof v === 'string' ? '' : v?.image }))
-        });
-
-        const next = [...prev.variants];
-        const current = next[index];
-        console.log('🔄 Current variant at index:', index, '=', current);
-        
-        const updatedVariant = typeof current === "string"
-          ? { name: current, image: original }
-          : { ...current, image: original };
-          
-        console.log('🔄 Updated variant:', updatedVariant);
-        next[index] = updatedVariant;
-
-        const newState = { ...prev, variants: next };
-        console.log('🔄 New form state variants:', newState.variants.map((v, i) => ({ index: i, name: typeof v === 'string' ? v : v?.name, image: typeof v === 'string' ? '' : v?.image })));
-        
-        // Mark that images were just uploaded to prevent reload overwrite
-        setLastImageUpload(Date.now());
-        setFormDataVersion(prev => prev + 1);
-        
-        return newState;
-      });
-      
-      console.log('✅ Variant state update complete');
-      showToast('success', 'Variant image uploaded');
-    } catch (error) {
-      console.error('❌ Variant image upload error:', error);
-      showToast('error', 'Image upload failed: ' + error.message);
-    } finally {
-      // Release upload lock after a brief delay to ensure all state updates are processed
-      setTimeout(() => {
-        setIsUploading(false);
-        setUploadLock(false);
-        console.log('🔓 Upload lock released, re-enabling product reload');
-      }, 100);
-    }
-  };
 
   // Load all products for related products dropdown
   useEffect(() => {
@@ -274,7 +197,7 @@ export default function ProductEdit() {
   // Track if this is the initial load and track image upload timestamps
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [lastImageUpload, setLastImageUpload] = useState(null);
-  const [formDataVersion, setFormDataVersion] = useState(0);
+  const [, setFormDataVersion] = useState(0);
   
   // Load product data for editing
   useEffect(() => {
@@ -559,214 +482,14 @@ export default function ProductEdit() {
     });
   };
 
-  const moveVariant = (field, index, direction) => {
-    setForm((previous) => {
-      const next = getArrayFromPrevious(previous, field);
-      const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      
-      // Check bounds
-      if (targetIndex < 0 || targetIndex >= next.length) {
-        return previous;
-      }
-      
-      // Swap positions
-      const temp = next[index];
-      next[index] = next[targetIndex];
-      next[targetIndex] = temp;
-      
-      return { ...previous, [field]: next };
-    });
-  };
 
-  const updateVariantPrice = (index, priceCents) => {
-    setForm((previous) => {
-      const next = [...previous.variants];
-      
-      // Ensure the array is large enough
-      if (index >= next.length) {
-        // Fill array with empty variants up to the index
-        while (next.length <= index) {
-          next.push({ name: "", image: "", price_cents: null });
-        }
-      }
-      
-      const current = next[index];
-      
-      // Handle undefined or null current variant
-      if (!current) {
-        const newVariant = { name: "", image: "", price_cents: priceCents };
-        next[index] = newVariant;
-      } else if (typeof current === "string") {
-        const updated = { name: current, image: "", price_cents: priceCents };
-        next[index] = updated;
-      } else {
-        const updated = { ...current, price_cents: priceCents };
-        next[index] = updated;
-      }
-      
-      return { ...previous, variants: next };
-    });
-  };
 
-  const getVariantDisplayPrice = (variant) => {
-    // Add robust null/undefined check
-    if (!variant || typeof variant !== 'object') {
-      return `R${(parseFloat(form.price || 0)).toFixed(2)} (Default)`;
-    }
-    // Safely access price_cents with fallback
-    const priceCents = variant.price_cents ?? null;
-    if (priceCents && priceCents > 0) {
-      return `R${(priceCents / 100).toFixed(2)}`;
-    }
-    return `R${(parseFloat(form.price || 0)).toFixed(2)} (Default)`;
-  };
 
-  const hasCustomPrice = (variant) => {
-    // Add robust null/undefined check
-    if (!variant || typeof variant !== 'object') {
-      return false;
-    }
-    // Safely access price_cents with fallback
-    const priceCents = variant.price_cents ?? null;
-    return priceCents && priceCents > 0;
-  };
 
-  const startEditingVariantPrice = (index) => {
-    setEditingVariantPrice(prev => ({ ...prev, [index]: true }));
-  };
 
-  const cancelEditingVariantPrice = (index) => {
-    setEditingVariantPrice(prev => ({ ...prev, [index]: false }));
-  };
 
-  const saveVariantPrice = (index, priceValue) => {
-    const priceNumber = parseFloat(priceValue);
-    if (Number.isFinite(priceNumber) && priceNumber >= 0) {
-      const priceCents = Math.round(priceNumber * 100);
-      updateVariantPrice(index, priceCents);
-      cancelEditingVariantPrice(index);
-      showToast('success', `Variant ${index + 1} price updated to R${priceNumber.toFixed(2)}`);
-    } else {
-      showToast('error', 'Please enter a valid price');
-    }
-  };
 
-  const resetToDefaultPrice = (index) => {
-    updateVariantPrice(index, null);
-    cancelEditingVariantPrice(index);
-    showToast('success', `Variant ${index + 1} price reset to default`);
-  };
 
-  const getVariantPriceInput = (index) => {
-    // Add bounds checking to prevent undefined access
-    if (index < 0 || index >= variants.length) {
-      return (
-        <div className="flex items-center gap-2">
-          <span className="variant-price-display variant-price-default">
-            R{(parseFloat(form.price || 0)).toFixed(2)} (Default)
-          </span>
-        </div>
-      );
-    }
-    
-    const variant = variants[index];
-    const isEditing = editingVariantPrice[index];
-    
-    // Additional safety check for undefined variant
-    if (!variant || typeof variant !== 'object') {
-      return (
-        <div className="flex items-center gap-2">
-          <span className="variant-price-display variant-price-default">
-            R{(parseFloat(form.price || 0)).toFixed(2)} (Default)
-          </span>
-          <button
-            type="button"
-            onClick={() => startEditingVariantPrice(index)}
-            className="product-btn-secondary"
-            style={{ padding: '4px 8px', fontSize: '11px' }}
-            title="Set custom price"
-          >
-            ✏️ Custom
-          </button>
-        </div>
-      );
-    }
-    
-    const currentPrice = hasCustomPrice(variant) 
-      ? (variant.price_cents / 100).toFixed(2)
-      : (parseFloat(form.price || 0)).toFixed(2);
-    
-    if (isEditing) {
-      return (
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            defaultValue={currentPrice}
-            className="price-edit-input"
-            placeholder="0.00"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                saveVariantPrice(index, e.target.value);
-              } else if (e.key === 'Escape') {
-                cancelEditingVariantPrice(index);
-              }
-            }}
-            autoFocus
-          />
-          <button
-            type="button"
-            onClick={(e) => {
-              const input = e.target.parentElement.querySelector('input');
-              saveVariantPrice(index, input.value);
-            }}
-            className="product-btn-secondary"
-            style={{ padding: '6px 10px', fontSize: '12px' }}
-          >
-            ✓ Save
-          </button>
-          <button
-            type="button"
-            onClick={() => cancelEditingVariantPrice(index)}
-            className="product-btn-secondary"
-            style={{ padding: '6px 10px', fontSize: '12px' }}
-          >
-            ✕ Cancel
-          </button>
-          {hasCustomPrice(variant) && (
-            <button
-              type="button"
-              onClick={() => resetToDefaultPrice(index)}
-              className="product-btn-secondary"
-              style={{ padding: '6px 10px', fontSize: '12px', background: 'var(--accent)', color: 'white' }}
-            >
-              🎯 Default
-            </button>
-          )}
-        </div>
-      );
-    }
-    
-    return (
-      <div className="flex items-center gap-2">
-        <span 
-          className={`variant-price-display ${hasCustomPrice(variant) ? 'variant-price-custom' : 'variant-price-default'}`}
-        >
-          {getVariantDisplayPrice(variant)}
-        </span>
-        <button
-          type="button"
-          onClick={() => startEditingVariantPrice(index)}
-          className="product-btn-secondary"
-          style={{ padding: '4px 8px', fontSize: '11px' }}
-          title={hasCustomPrice(variant) ? 'Edit custom price' : 'Set custom price'}
-        >
-          ✏️ {hasCustomPrice(variant) ? 'Edit' : 'Custom'}
-        </button>
-      </div>
-    );
-  };
 
   const priceNumber = useMemo(() => {
     const parsed = parseFloat(form.price);
@@ -852,8 +575,6 @@ export default function ProductEdit() {
 
   const images = useMemo(() => {
     const primary = form.thumbnail_url?.trim();
-    // Only include hover image if it's different from primary
-    const hover = form.hover_url?.trim();
     
     // We only want the main image in the gallery as requested
     // If you ever want hover back, add it to this list
@@ -1954,7 +1675,7 @@ export default function ProductEdit() {
                               const { original } = await uploadToCloudinary(file);
                               updateArr("gallery_urls", index, original);
                               showToast('success', 'Image uploaded');
-                            } catch (err) {
+                            } catch  {
                               showToast('error', 'Upload failed');
                             }
                           }}

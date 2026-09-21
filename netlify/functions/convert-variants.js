@@ -3,7 +3,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-export const handler = async (event, context) => {
+export const handler = async (event, _context) => {
   // Set CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',

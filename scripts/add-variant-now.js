@@ -22,7 +22,7 @@ async function addVariantNow() {
           }
         });
       }
-    } catch (e) {
+    } catch {
       console.log('Could not read .env file, trying to proceed...');
     }
 

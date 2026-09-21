@@ -46,7 +46,6 @@ export const handler = async (event) => {
     // Adjust stock if delta is not zero
     if (delta !== 0) {
       let newQty;
-      let updatedProduct;
 
       if (variantIndex !== undefined && variantIndex !== null) {
         // Handle variant-specific stock update
@@ -63,7 +62,7 @@ export const handler = async (event) => {
         newQty = currentVariantStock + delta;
 
         // Update variant stock
-        const { data: updatedProductData, error: updateError } = await supabase
+        const { error: updateError } = await supabase
           .rpc('update_variant_stock', { 
             product_row: product, 
             variant_index: variantIndex, 
@@ -75,7 +74,6 @@ export const handler = async (event) => {
           throw new Error("Failed to update variant stock");
         }
 
-        updatedProduct = updatedProductData;
 
         // Log stock movement with variant info
         const { error: moveError } = await supabase

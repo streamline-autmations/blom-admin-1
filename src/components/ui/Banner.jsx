@@ -1,4 +1,3 @@
-import React from 'react';
 import { AlertCircle, Info } from 'lucide-react';
 
 export function Banner({ type = 'info', children }) {
@@ -10,7 +9,7 @@ export function Banner({ type = 'info', children }) {
         {type === 'warning' && <AlertCircle className="w-5 h-5" />}
         <div className="banner-content">{children}</div>
       </div>
-      <style jsx>{`
+      <style>{`
         .banner {
           background: var(--card);
           border-radius: 12px;

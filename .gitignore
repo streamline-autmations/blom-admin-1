@@ -1,6 +1,15 @@
-#env
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Environment — never commit real values. See .env.example for the schema.
 .env
 .env.*
+!.env.example
 
 # Logs
 logs
@@ -11,31 +20,37 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# Editors / OS
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-.envshop-admin-pro-9e871867-main
+# Local tooling
+.netlify
+.supabase
 
-# Trae IDE
+# AI / agent tooling — local developer config, not part of the application
+.claude/
+.codex/
+.cursor/
 .trae/
+.kilocode/
+.agents/
+kill.code-context/
+.mcp.json
+CLAUDE.md
+AGENTS.md
 
-# Secret dumps — NEVER commit (contain live API keys / tokens)
+# Personal downloads / scratch copies of other repositories
+Downloads/
+
+# Secret dumps — never commit
 keys.txt
 http.txt
-/.js
-
-# Local Netlify folder
-.netlify
