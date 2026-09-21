@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
+import { withAdminAuth } from "./_lib/admin-auth.js";
 
 const s = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-export const handler = async (e) => {
+const baseHandler = async (e) => {
   try {
     const url = new URL(e.rawUrl);
     const period = url.searchParams.get('period') || '30'; // Default 30 days
@@ -160,3 +161,5 @@ export const handler = async (e) => {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: err.message || "admin-top-selling-products failed" }) };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

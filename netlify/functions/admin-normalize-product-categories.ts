@@ -1,5 +1,6 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -41,7 +42,7 @@ const normalizeCategory = (raw: any): Normalized | null => {
   return null;
 };
 
-export const handler: Handler = async (event) => {
+const baseHandler: Handler = async (event) => {
   if (event.httpMethod === "OPTIONS") return { statusCode: 200, headers: CORS };
   if (event.httpMethod !== "POST") return json(405, { ok: false, error: "Method not allowed" });
 
@@ -97,3 +98,5 @@ export const handler: Handler = async (event) => {
     return json(500, { ok: false, error: err?.message || String(err) });
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

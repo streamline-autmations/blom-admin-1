@@ -1,9 +1,10 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const s = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export const handler: Handler = async (e) => {
+const baseHandler: Handler = async (e) => {
   // Add early check for missing env vars
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return {
@@ -229,3 +230,5 @@ export const handler: Handler = async (e) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

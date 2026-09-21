@@ -1,12 +1,13 @@
 import type { Handler } from "@netlify/functions";
 import crypto from 'crypto';
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const headers = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*'
 };
 
-export const handler: Handler = async (event) => {
+const baseHandler: Handler = async (event) => {
   if (event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
@@ -171,3 +172,5 @@ function parseCSV(csv: string): any[] {
 
   return result;
 }
+
+export const handler = withAdminAuth(baseHandler);

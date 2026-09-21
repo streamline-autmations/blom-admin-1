@@ -1,10 +1,11 @@
 // netlify/functions/admin-contact-delete.ts
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const s = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export const handler: Handler = async (event) => {
+const baseHandler: Handler = async (event) => {
   try {
     // Only allow POST requests
     if (event.httpMethod !== "POST") {
@@ -63,3 +64,5 @@ export const handler: Handler = async (event) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

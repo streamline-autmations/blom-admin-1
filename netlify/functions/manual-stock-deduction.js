@@ -4,13 +4,14 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { withAdminAuth } from "./_lib/admin-auth.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-export async function handler(event, _context) {
+async function baseHandler(event, _context) {
   try {
     const { order_id } = JSON.parse(event.body || '{}');
     
@@ -217,3 +218,5 @@ export async function handler(event, _context) {
     };
   }
 }
+
+export const handler = withAdminAuth(baseHandler);

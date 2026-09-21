@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/admin-auth.js";
 
 const s = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -158,7 +159,7 @@ async function sendStatusWebhook(orderData, newStatus, currentStatus, orderItems
   }
 }
 
-export const handler = async (e) => {
+const baseHandler = async (e) => {
   if (e.httpMethod !== "POST") {
     return { 
       statusCode: 405, 
@@ -760,3 +761,5 @@ export const handler = async (e) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

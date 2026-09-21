@@ -1,7 +1,8 @@
 // Simple test function to debug order status updates
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/admin-auth.js";
 
-export const handler = async (e) => {
+const baseHandler = async (e) => {
   if (e.httpMethod !== "POST") {
     return { 
       statusCode: 405, 
@@ -97,3 +98,5 @@ export const handler = async (e) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

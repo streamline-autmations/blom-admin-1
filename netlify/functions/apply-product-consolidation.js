@@ -6,13 +6,14 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { withAdminAuth } from "./_lib/admin-auth.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-export async function handler(_event, _context) {
+async function baseHandler(_event, _context) {
   try {
     console.log('🚀 Starting Product Duplicate Consolidation...');
     
@@ -268,3 +269,5 @@ export async function handler(_event, _context) {
     };
   }
 }
+
+export const handler = withAdminAuth(baseHandler);

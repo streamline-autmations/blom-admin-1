@@ -1,10 +1,11 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
 import { adminCorsHeaders, requireAdminUser } from "./_lib/require-admin-user";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const s = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-export const handler: Handler = async (e) => {
+const baseHandler: Handler = async (e) => {
   if (e.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: adminCorsHeaders, body: "" };
   }
@@ -130,3 +131,5 @@ export const handler: Handler = async (e) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

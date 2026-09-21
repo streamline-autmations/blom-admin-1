@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/admin-auth.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -6,7 +7,7 @@ const supabase = createClient(
   { auth: { persistSession: false } }
 );
 
-export const handler = async (event) => {
+const baseHandler = async (event) => {
   try {
     const url = new URL(event.rawUrl || 'http://localhost');
     const startDate = url.searchParams.get('start_date');
@@ -176,3 +177,5 @@ export const handler = async (event) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

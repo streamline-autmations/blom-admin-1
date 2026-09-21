@@ -1,12 +1,13 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/with-admin-auth";
 
 const headers = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*'
 };
 
-export const handler: Handler = async (event) => {
+const baseHandler: Handler = async (event) => {
   try {
     const supabaseUrl = process.env.SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -140,3 +141,5 @@ export const handler: Handler = async (event) => {
     };
   }
 };
+
+export const handler = withAdminAuth(baseHandler);

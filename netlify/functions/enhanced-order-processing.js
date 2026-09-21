@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { withAdminAuth } from "./_lib/admin-auth.js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -7,7 +8,7 @@ const supabase = createClient(
 );
 
 // Enhanced Order Processing: Stock Deduction + Sales Analytics Update
-export const handler = async (event) => {
+const baseHandler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { 
       statusCode: 405, 
@@ -419,3 +420,5 @@ async function sendOrderWebhook(orderId, fromStatus, toStatus, order) {
     };
   }
 }
+
+export const handler = withAdminAuth(baseHandler);
