@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { Check, RotateCcw, Save, Undo2, Users, Wallet } from 'lucide-react';
+import { Check, ExternalLink, RotateCcw, Save, Undo2, Users, Wallet } from 'lucide-react';
 
 const money = (cents) =>
   new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format((cents || 0) / 100);
@@ -9,23 +9,14 @@ const money = (cents) =>
 const dateLabel = (iso) =>
   iso ? new Date(iso).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 
-const STATUS_STYLES = {
-  paid: 'bg-emerald-50 text-emerald-700',
-  approved: 'bg-sky-50 text-sky-700',
-  pending: 'bg-amber-50 text-amber-800',
-  reversed: 'bg-rose-50 text-rose-700',
-};
-
 const Badge = ({ status }) => (
-  <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium capitalize ${STATUS_STYLES[status] || 'bg-slate-100 text-slate-700'}`}>
-    {status}
-  </span>
+  <span className={`aff-badge aff-badge-${status}`}>{status}</span>
 );
 
 const Stat = ({ label, value, muted }) => (
-  <div className="rounded-lg border border-slate-200 bg-white p-4">
-    <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-    <p className={`mt-1 text-xl font-semibold tabular-nums ${muted ? 'text-slate-500' : 'text-slate-900'}`}>{value}</p>
+  <div className="aff-stat">
+    <div className="aff-stat-label">{label}</div>
+    <div className={`aff-stat-value${muted ? ' muted' : ''}`}>{value}</div>
   </div>
 );
 
@@ -100,11 +91,18 @@ export default function Affiliates() {
   const selectedCommissions = commissions.filter((c) => c.affiliate_id === selectedId);
   const payableCommissions = selectedCommissions.filter((c) => c.status === 'approved' || c.status === 'pending');
   const payableTotal = payableCommissions.reduce((sum, c) => sum + c.commission_cents, 0);
+  const selectedPayouts = payouts.filter((p) => p.affiliate_id === selectedId);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['affiliates'] });
     queryClient.invalidateQueries({ queryKey: ['affiliate-commissions'] });
     queryClient.invalidateQueries({ queryKey: ['affiliate-payouts'] });
+  };
+
+  const selectAffiliate = (id) => {
+    setSelectedId(id === selectedId ? null : id);
+    setEdits({});
+    setPayoutRef('');
   };
 
   const setCommissionStatus = useMutation({
@@ -161,113 +159,183 @@ export default function Affiliates() {
     },
   });
 
-  if (isLoading) return <div className="p-6 text-slate-500">Loading affiliates…</div>;
-
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Affiliates</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Referral partners, their attributed sales and the commission owed to them.
-        </p>
+    <>
+      <style>{`
+        .aff-header { margin-bottom: 32px; }
+        .aff-title { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .aff-subtitle { color: var(--text-muted); font-size: 14px; }
+
+        .aff-card { background: var(--card); border-radius: 16px; box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light); margin-bottom: 24px; }
+        .aff-card.padded { padding: 24px; }
+        .aff-card.flush { overflow: hidden; }
+        .aff-section-title { font-size: 18px; font-weight: 700; color: var(--text); margin: 0 0 16px; }
+        .aff-detail-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 32px 0 20px; flex-wrap: wrap; }
+        .aff-detail-name { font-size: 22px; font-weight: 700; color: var(--text); margin: 0; }
+        .aff-link { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: 14px; font-weight: 600; text-decoration: none; }
+        .aff-link:hover { text-decoration: underline; }
+
+        .aff-table-wrap { overflow-x: auto; }
+        .aff-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+        .aff-table th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; background: var(--card); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .aff-table td { padding: 16px 24px; color: var(--text); border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+        .aff-table tr:last-child td { border-bottom: none; }
+        .aff-table tbody tr:hover { background: rgba(110, 193, 255, 0.05); }
+        .aff-table tr.clickable { cursor: pointer; }
+        .aff-table tr.selected { background: rgba(110, 193, 255, 0.10); }
+        .aff-table .num { text-align: right; }
+        .aff-table .strong { font-weight: 600; }
+        .aff-table .owed { font-weight: 600; color: #ca8a04; }
+        .aff-muted { color: var(--text-muted); }
+        .aff-small { font-size: 12px; }
+        .aff-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+        .aff-empty { padding: 48px 24px; text-align: center; color: var(--text-muted); }
+
+        .aff-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; text-transform: capitalize; background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+        .aff-badge-active, .aff-badge-paid { background: #16a34a20; color: #16a34a; }
+        .aff-badge-approved { background: #3b82f620; color: #3b82f6; }
+        .aff-badge-pending { background: #eab30820; color: #ca8a04; }
+        .aff-badge-reversed { background: #dc262620; color: #dc2626; }
+
+        .aff-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px; }
+        .aff-stat { background: var(--card); border-radius: 16px; padding: 20px 24px; box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light); }
+        .aff-stat-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .aff-stat-value { font-size: 26px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+        .aff-stat-value.muted { color: var(--text-muted); }
+
+        .aff-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; }
+        .aff-field { display: flex; flex-direction: column; gap: 8px; }
+        .aff-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .aff-input { height: 42px; padding: 0 14px; border-radius: 8px; border: none; background: var(--card); color: var(--text); font-size: 14px; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); outline: none; font-variant-numeric: tabular-nums; }
+        .aff-input:focus { box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light), 0 0 0 2px var(--accent); }
+        .aff-input.narrow { width: 140px; }
+        .aff-input.wide { width: 240px; }
+        .aff-input option { background: var(--card); color: var(--text); }
+        .aff-help { margin: 12px 0 0; font-size: 13px; color: var(--text-muted); }
+
+        .aff-btn { height: 42px; padding: 0 20px; border-radius: 8px; border: none; background: var(--accent); color: var(--accent-foreground, #fff); font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: opacity 0.2s; }
+        .aff-btn:hover:not(:disabled) { opacity: 0.9; }
+        .aff-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .aff-btn-text { padding: 6px 12px; border-radius: 8px; border: none; background: var(--card); font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); transition: transform 0.2s; }
+        .aff-btn-text:hover { transform: translateY(-1px); }
+        .aff-btn-text.danger { color: #dc2626; }
+        .aff-btn-text.restore { color: #3b82f6; }
+
+        .aff-payable-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .aff-payable-value { font-size: 26px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+        .aff-error { margin-top: 12px; font-size: 14px; color: #dc2626; }
+        .aff-history { list-style: none; margin: 20px 0 0; padding: 16px 0 0; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+        .aff-history li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; color: var(--text-muted); }
+        .aff-history .amount { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+        .aff-device { color: #ca8a04; white-space: nowrap; }
+      `}</style>
+
+      <div className="aff-header">
+        <h1 className="aff-title">Affiliates</h1>
+        <p className="aff-subtitle">Referral partners, their attributed sales and the commission owed to them.</p>
       </div>
 
-      {affiliates.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-slate-300 p-10 text-center text-slate-500">
-          <Users className="mx-auto mb-3 h-8 w-8" aria-hidden="true" />
-          No affiliates yet.
-        </div>
-      ) : (
-        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-          <table className="w-full min-w-[820px] text-sm">
+      <div className="aff-card flush">
+        <div className="aff-table-wrap">
+          <table className="aff-table">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-3 font-medium">Partner</th>
-                <th className="px-4 py-3 font-medium">Rate</th>
-                <th className="px-4 py-3 text-right font-medium">Visitors</th>
-                <th className="px-4 py-3 text-right font-medium">Orders</th>
-                <th className="px-4 py-3 text-right font-medium">Sales</th>
-                <th className="px-4 py-3 text-right font-medium">Commission</th>
-                <th className="px-4 py-3 text-right font-medium">Owed</th>
-                <th className="px-4 py-3 font-medium">Status</th>
+              <tr>
+                <th>Partner</th>
+                <th>Rate</th>
+                <th className="num">Visitors</th>
+                <th className="num">Orders</th>
+                <th className="num">Sales</th>
+                <th className="num">Commission</th>
+                <th className="num">Owed</th>
+                <th>Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {affiliates.map((affiliate) => {
+            <tbody>
+              {isLoading ? (
+                <tr><td colSpan={8} className="aff-empty">Loading affiliates…</td></tr>
+              ) : affiliates.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="aff-empty">
+                    <Users size={28} aria-hidden="true" style={{ marginBottom: 8 }} />
+                    <div>No affiliates yet.</div>
+                  </td>
+                </tr>
+              ) : affiliates.map((affiliate) => {
                 const stats = statsFor[affiliate.id] || {};
                 return (
                   <tr
                     key={affiliate.id}
-                    onClick={() => setSelectedId(affiliate.id === selectedId ? null : affiliate.id)}
-                    className={`cursor-pointer hover:bg-slate-50 ${affiliate.id === selectedId ? 'bg-slate-50' : ''}`}
+                    onClick={() => selectAffiliate(affiliate.id)}
+                    className={`clickable${affiliate.id === selectedId ? ' selected' : ''}`}
                   >
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-slate-900">{affiliate.name}</div>
-                      <div className="font-mono text-xs text-slate-500">?ref={affiliate.code}</div>
+                    <td>
+                      <div className="strong">{affiliate.name}</div>
+                      <div className="aff-mono aff-muted">?ref={affiliate.code}</div>
                     </td>
-                    <td className="px-4 py-3 tabular-nums">{(affiliate.commission_rate * 100).toFixed(0)}%</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{stats.uniqueClicks ?? 0}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{stats.orders ?? 0}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{money(stats.sales)}</td>
-                    <td className="px-4 py-3 text-right font-medium tabular-nums">{money(stats.commission)}</td>
-                    <td className="px-4 py-3 text-right font-medium tabular-nums text-amber-700">{money(stats.owed)}</td>
-                    <td className="px-4 py-3"><Badge status={affiliate.status} /></td>
+                    <td>{(affiliate.commission_rate * 100).toFixed(0)}%</td>
+                    <td className="num">{stats.uniqueClicks ?? 0}</td>
+                    <td className="num">{stats.orders ?? 0}</td>
+                    <td className="num">{money(stats.sales)}</td>
+                    <td className="num strong">{money(stats.commission)}</td>
+                    <td className="num owed">{money(stats.owed)}</td>
+                    <td><Badge status={affiliate.status} /></td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
-      )}
+      </div>
 
       {selected && (
-        <div className="space-y-6 rounded-lg border border-slate-200 bg-slate-50/60 p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-slate-900">{selected.name}</h2>
+        <>
+          <div className="aff-detail-head">
+            <h2 className="aff-detail-name">{selected.name}</h2>
             <a
-              className="text-sm text-sky-700 underline"
+              className="aff-link"
               href={`https://blom-cosmetics.co.za/?ref=${selected.code}`}
               target="_blank"
               rel="noreferrer"
             >
-              Open referral link
+              Open referral link <ExternalLink size={14} aria-hidden="true" />
             </a>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="aff-stats">
             <Stat label="Commission owed" value={money(statsFor[selected.id]?.owed)} />
             <Stat label="Already paid" value={money(statsFor[selected.id]?.paid)} muted />
             <Stat label="Attributed orders" value={statsFor[selected.id]?.orders ?? 0} />
             <Stat label="Total clicks" value={statsFor[selected.id]?.clicks ?? 0} muted />
           </div>
 
-          <section className="rounded-lg border border-slate-200 bg-white p-4">
-            <h3 className="text-sm font-semibold text-slate-900">Settings</h3>
-            <div className="mt-3 flex flex-wrap items-end gap-4">
-              <label className="text-sm">
-                <span className="block text-slate-600">Commission rate (%)</span>
+          <div className="aff-card padded">
+            <h3 className="aff-section-title">Settings</h3>
+            {/* Keyed by partner so the uncontrolled inputs reset when switching partners. */}
+            <div className="aff-form" key={selected.id}>
+              <label className="aff-field">
+                <span className="aff-label">Commission rate (%)</span>
                 <input
                   type="number" step="0.5" min="0" max="100"
                   defaultValue={(selected.commission_rate * 100).toFixed(1)}
                   onChange={(e) => setEdits((p) => ({ ...p, commission_rate: Number(e.target.value) / 100 }))}
-                  className="mt-1 h-10 w-32 rounded border border-slate-300 px-2 tabular-nums"
+                  className="aff-input narrow"
                 />
               </label>
-              <label className="text-sm">
-                <span className="block text-slate-600">Attribution window (days)</span>
+              <label className="aff-field">
+                <span className="aff-label">Attribution window (days)</span>
                 <input
                   type="number" min="1" max="365"
                   defaultValue={selected.attribution_days}
                   onChange={(e) => setEdits((p) => ({ ...p, attribution_days: Number(e.target.value) }))}
-                  className="mt-1 h-10 w-32 rounded border border-slate-300 px-2 tabular-nums"
+                  className="aff-input narrow"
                 />
               </label>
-              <label className="text-sm">
-                <span className="block text-slate-600">Status</span>
+              <label className="aff-field">
+                <span className="aff-label">Status</span>
                 <select
                   defaultValue={selected.status}
                   onChange={(e) => setEdits((p) => ({ ...p, status: e.target.value }))}
-                  className="mt-1 h-10 w-36 rounded border border-slate-300 px-2"
+                  className="aff-input narrow"
                 >
                   <option value="active">Active</option>
                   <option value="disabled">Disabled</option>
@@ -276,108 +344,108 @@ export default function Affiliates() {
               <button
                 onClick={() => saveAffiliate.mutate({ id: selected.id, patch: { ...edits, updated_at: new Date().toISOString() } })}
                 disabled={Object.keys(edits).length === 0 || saveAffiliate.isPending}
-                className="inline-flex h-10 items-center gap-2 rounded bg-slate-900 px-4 text-sm font-medium text-white disabled:opacity-40"
+                className="aff-btn"
               >
-                <Save className="h-4 w-4" aria-hidden="true" />
+                <Save size={16} aria-hidden="true" />
                 Save changes
               </button>
             </div>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="aff-help">
               Rate and window changes apply to future orders. Commissions already recorded keep the rate they were created with.
             </p>
-          </section>
+          </div>
 
-          <section className="rounded-lg border border-slate-200 bg-white p-4">
-            <h3 className="text-sm font-semibold text-slate-900">Record a payout</h3>
-            <div className="mt-3 flex flex-wrap items-end gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-slate-500">Payable now</p>
-                <p className="text-xl font-semibold tabular-nums text-slate-900">{money(payableTotal)}</p>
-                <p className="text-xs text-slate-500">{payableCommissions.length} commission(s)</p>
+          <div className="aff-card padded">
+            <h3 className="aff-section-title">Record a payout</h3>
+            <div className="aff-form">
+              <div className="aff-field">
+                <span className="aff-payable-label">Payable now</span>
+                <span className="aff-payable-value">{money(payableTotal)}</span>
+                <span className="aff-small aff-muted">{payableCommissions.length} commission(s)</span>
               </div>
-              <label className="text-sm">
-                <span className="block text-slate-600">Payment reference</span>
+              <label className="aff-field">
+                <span className="aff-label">Payment reference</span>
                 <input
                   value={payoutRef}
                   onChange={(e) => setPayoutRef(e.target.value)}
                   placeholder="EFT reference"
-                  className="mt-1 h-10 w-56 rounded border border-slate-300 px-2"
+                  className="aff-input wide"
                 />
               </label>
               <button
                 onClick={() => recordPayout.mutate()}
                 disabled={payableCommissions.length === 0 || recordPayout.isPending}
-                className="inline-flex h-10 items-center gap-2 rounded bg-emerald-600 px-4 text-sm font-medium text-white disabled:opacity-40"
+                className="aff-btn"
               >
-                <Wallet className="h-4 w-4" aria-hidden="true" />
+                <Wallet size={16} aria-hidden="true" />
                 Mark {money(payableTotal)} as paid
               </button>
             </div>
             {recordPayout.isError && (
-              <p className="mt-2 text-sm text-rose-700">{recordPayout.error?.message || 'Could not record the payout.'}</p>
+              <p className="aff-error">{recordPayout.error?.message || 'Could not record the payout.'}</p>
             )}
-            {payouts.filter((p) => p.affiliate_id === selected.id).length > 0 && (
-              <ul className="mt-4 space-y-1 text-sm text-slate-600">
-                {payouts.filter((p) => p.affiliate_id === selected.id).map((payout) => (
-                  <li key={payout.id} className="flex flex-wrap gap-2">
-                    <Check className="h-4 w-4 text-emerald-600" aria-hidden="true" />
-                    <span className="tabular-nums font-medium text-slate-900">{money(payout.total_cents)}</span>
-                    <span>on {dateLabel(payout.paid_at)}</span>
-                    {payout.reference && <span className="text-slate-500">· {payout.reference}</span>}
+            {selectedPayouts.length > 0 && (
+              <ul className="aff-history">
+                {selectedPayouts.map((payout) => (
+                  <li key={payout.id}>
+                    <Check size={16} color="#16a34a" aria-hidden="true" />
+                    <span className="amount">{money(payout.total_cents)}</span>
+                    <span>paid {dateLabel(payout.paid_at)}</span>
+                    {payout.reference && <span>· {payout.reference}</span>}
                   </li>
                 ))}
               </ul>
             )}
-          </section>
+          </div>
 
-          <section>
-            <h3 className="text-sm font-semibold text-slate-900">Attributed orders</h3>
-            <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white">
-              <table className="w-full min-w-[760px] text-sm">
+          <h3 className="aff-section-title">Attributed orders</h3>
+          <div className="aff-card flush">
+            <div className="aff-table-wrap">
+              <table className="aff-table">
                 <thead>
-                  <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
-                    <th className="px-4 py-3 font-medium">Order</th>
-                    <th className="px-4 py-3 font-medium">Date</th>
-                    <th className="px-4 py-3 font-medium">Matched by</th>
-                    <th className="px-4 py-3 text-right font-medium">Qualifying sale</th>
-                    <th className="px-4 py-3 text-right font-medium">Commission</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Action</th>
+                  <tr>
+                    <th>Order</th>
+                    <th>Date</th>
+                    <th>Matched by</th>
+                    <th className="num">Qualifying sale</th>
+                    <th className="num">Commission</th>
+                    <th>Status</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody>
                   {selectedCommissions.length === 0 ? (
-                    <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-500">No attributed orders yet.</td></tr>
+                    <tr><td colSpan={7} className="aff-empty">No attributed orders yet.</td></tr>
                   ) : selectedCommissions.map((commission) => (
                     <tr key={commission.id}>
-                      <td className="whitespace-nowrap px-4 py-3 font-mono text-xs">{commission.order_number}</td>
-                      <td className="whitespace-nowrap px-4 py-3">{dateLabel(commission.created_at)}</td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="aff-mono" style={{ whiteSpace: 'nowrap' }}>{commission.order_number}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>{dateLabel(commission.created_at)}</td>
+                      <td className="aff-muted">
                         {commission.attribution_method === 'ip_match' ? (
-                          <span className="text-amber-700" title="Matched by device fingerprint rather than a cookie — less certain">
+                          <span className="aff-device" title="Matched by device fingerprint rather than a cookie — less certain">
                             device match
                           </span>
                         ) : (commission.attribution_method || '—')}
                       </td>
-                      <td className="px-4 py-3 text-right tabular-nums">{money(commission.base_cents)}</td>
-                      <td className="px-4 py-3 text-right font-medium tabular-nums">{money(commission.commission_cents)}</td>
-                      <td className="px-4 py-3"><Badge status={commission.status} /></td>
-                      <td className="px-4 py-3">
+                      <td className="num">{money(commission.base_cents)}</td>
+                      <td className="num strong">{money(commission.commission_cents)}</td>
+                      <td><Badge status={commission.status} /></td>
+                      <td>
                         {commission.status === 'reversed' ? (
                           <button
                             onClick={() => setCommissionStatus.mutate({ id: commission.id, status: 'approved' })}
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-700 hover:underline"
+                            className="aff-btn-text restore"
                           >
-                            <Undo2 className="h-3.5 w-3.5" aria-hidden="true" /> Restore
+                            <Undo2 size={14} aria-hidden="true" /> Restore
                           </button>
                         ) : commission.status === 'paid' ? (
-                          <span className="text-xs text-slate-400">Paid out</span>
+                          <span className="aff-small aff-muted">Paid out</span>
                         ) : (
                           <button
                             onClick={() => setCommissionStatus.mutate({ id: commission.id, status: 'reversed' })}
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-700 hover:underline"
+                            className="aff-btn-text danger"
                           >
-                            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" /> Reverse
+                            <RotateCcw size={14} aria-hidden="true" /> Reverse
                           </button>
                         )}
                       </td>
@@ -386,9 +454,9 @@ export default function Affiliates() {
                 </tbody>
               </table>
             </div>
-          </section>
-        </div>
+          </div>
+        </>
       )}
-    </div>
+    </>
   );
 }
